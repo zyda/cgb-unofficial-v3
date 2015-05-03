@@ -32,6 +32,13 @@ Func TrainIt($troopKind, $howMuch = 1, $iSleep = 400)
    EndIf
 EndFunc
 
+func skip_train()
+	if $CurBarb > 0 or $CurArch > 0 or $CurGiant > 0 or $CurGobl > 0 or $CurWall > 0 or $CurBall > 0 or $CurWiza > 0 or $CurHeal = 0 > 0 or $CurMini > 0 or $CurHogs > 0 or $CurValk > 0 or $CurGole > 0 or $CurWitc > 0 or $CurLava > 0 or $CurDrag  > 0 or $CurPekk > 0 Then
+		Return False
+	else
+		Return True
+	endif
+endfunc
 
 Func Train()
 	If _GUICtrlComboBox_GetCurSel($cmbTroopComp) <> 1 Then
@@ -260,6 +267,10 @@ Func Train()
 			;endif
 		wend
 	else
+		if skip_train() then
+			SetLog("Skip Barrack " & $brrNum + 1 & " as no troop training required", $COLOR_RED)
+			return
+		endif
 		while isBarrack() and $isNormalBuild
 			$brrNum += 1
 			if $fullArmy or $FirstStart then
