@@ -16,13 +16,13 @@ Func SetSleep($type)
 	Switch $type
 		Case 0
 			If $iRandomspeedatk = 1 Then
-				Return Round(Random(1, 10)) * 10
+				Return Round(Random(1, 20)) * 10
 			Else
 				Return ($icmbUnitDelay + 1) * 10
 			EndIf
 		Case 1
 			If $iRandomspeedatk = 1 Then
-				Return Round(Random(1, 10)) * 100
+				Return Round(Random(1, 20)) * 100
 			Else
 				Return ($icmbWaveDelay + 1) * 100
 			EndIf
@@ -348,6 +348,22 @@ Func algorithm_AllTroops() ;Attack Algorithm for all existing troops
 				If (IsArray($PixelDarkElixir)) Then
 					_ArrayAdd($PixelNearCollector, $PixelDarkElixir)
 				EndIf
+				If ($chkSmartAttack[0] = 0) and ($chkSmartAttack[1] = 0) Then
+					local $tmp_Pixel = [GetLocationElixir()[0]]
+					If (IsArray($tmp_Pixel)) Then
+						_ArrayAdd($PixelNearCollector, $tmp_Pixel)
+					EndIf
+					if (UBound($PixelNearCollector) < 4) Then
+						local $PixelMine = [GetLocationMine()[0]]
+						If (IsArray($tmp_Pixel)) Then
+							_ArrayAdd($PixelNearCollector, $tmp_Pixel)
+						EndIf
+					EndIf
+				EndIf
+				if (UBound($PixelNearCollector) < 4) Then
+					_ArrayAdd($PixelNearCollector, $PixelDarkElixir)
+				Endif
+
 			EndIf
 			SetLog("==> Found  (in " & Round(TimerDiff($hTimer) / 1000, 2) & " seconds) :")
 			SetLog("	[" & UBound($PixelMine) & "] pixels gold mine")

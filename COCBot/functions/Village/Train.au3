@@ -32,6 +32,20 @@ Func TrainIt($troopKind, $howMuch = 1, $iSleep = 400)
    EndIf
 EndFunc
 
+func extra_troops()
+	Local $DonateTroop = BitOR($iChkDonateBarbarians, $iChkDonateArchers, $iChkDonateGiants, $iChkDonateGoblins, _
+			$iChkDonateWallBreakers, $iChkDonateBalloons, $iChkDonateWizards, $iChkDonateHealers, _
+			$iChkDonateDragons, $iChkDonatePekkas, $iChkDonateMinions, $iChkDonateHogRiders, _
+			$iChkDonateValkyries, $iChkDonateGolems, $iChkDonateWitches, $iChkDonateLavaHounds)
+	Local $DonateAllTroop = BitOR($iChkDonateAllBarbarians, $iChkDonateAllArchers, $iChkDonateAllGiants, $iChkDonateAllGoblins, _
+			$iChkDonateAllWallBreakers, $iChkDonateAllBalloons, $iChkDonateAllWizards, $iChkDonateAllHealers, _
+			$iChkDonateAllDragons, $iChkDonateAllPekkas, $iChkDonateAllMinions, $iChkDonateAllHogRiders, _
+			$iChkDonateAllValkyries, $iChkDonateAllGolems, $iChkDonateAllWitches, $iChkDonateAllLavaHounds)
+
+	return BitOR($DonateTroop, $DonateAllTroop)
+
+EndFunc
+
 func skip_train()
 	if $CurBarb > 0 or $CurArch > 0 or $CurGiant > 0 or $CurGobl > 0 or $CurWall > 0 or $CurBall > 0 or $CurWiza > 0 or $CurHeal = 0 > 0 or $CurMini > 0 or $CurHogs > 0 or $CurValk > 0 or $CurGole > 0 or $CurWitc > 0 or $CurLava > 0 or $CurDrag  > 0 or $CurPekk > 0 Then
 		Return False
@@ -167,6 +181,10 @@ Func Train()
 		next
 	Endif
 
+	local $TotalCampSize = $TotalCamp
+	; make additional troops when donation is enabled, only makes difference when donation on armycamp is full
+	if extra_troops() Then $TotalCampSize += 12
+	
 	If $fullArmy and $ArmyComp = 0 Then
 		$anotherTroops = 0
 		for $i=0 to Ubound($TroopName) - 1
@@ -179,11 +197,11 @@ Func Train()
 			assign(("Cur" & $TroopDarkName[$i]) , GUICtrlRead(eval("txtNum" & $TroopDarkName[$i])))
 			$anotherTroops += GUICtrlRead(eval("txtNum" & $TroopDarkName[$i])) * $TroopDarkHeight[$i]
 		next
-	 	$CurGobl = ($TotalCamp-$anotherTroops)*GUICtrlRead($txtNumGobl)/100
+	 	$CurGobl = ($TotalCampSize-$anotherTroops)*GUICtrlRead($txtNumGobl)/100
 		$CurGobl = Round($CurGobl)
-	 	$CurBarb = ($TotalCamp-$anotherTroops)*GUICtrlRead($txtNumBarb)/100
+	 	$CurBarb = ($TotalCampSize-$anotherTroops)*GUICtrlRead($txtNumBarb)/100
 		$CurBarb = Round($CurBarb)
-	 	$CurArch = ($TotalCamp-$anotherTroops)*GUICtrlRead($txtNumArch)/100
+	 	$CurArch = ($TotalCampSize-$anotherTroops)*GUICtrlRead($txtNumArch)/100
 		$CurArch = Round($CurArch)
 	elseif $ArmyComp = 0 or $FirstStart Then
 		$anotherTroops = 0
@@ -197,11 +215,11 @@ Func Train()
 			assign(("Cur" & $TroopDarkName[$i]) , eval("Cur" & $TroopDarkName[$i]) + GUICtrlRead(eval("txtNum" & $TroopDarkName[$i])))
 			$anotherTroops += GUICtrlRead(eval("txtNum" & $TroopDarkName[$i])) * $TroopDarkHeight[$i]
 		next
-	 	$CurGobl += ($TotalCamp-$anotherTroops)*GUICtrlRead($txtNumGobl)/100
+	 	$CurGobl += ($TotalCampSize-$anotherTroops)*GUICtrlRead($txtNumGobl)/100
 		$CurGobl = Round($CurGobl)
-	 	$CurBarb += ($TotalCamp-$anotherTroops)*GUICtrlRead($txtNumBarb)/100
+	 	$CurBarb += ($TotalCampSize-$anotherTroops)*GUICtrlRead($txtNumBarb)/100
 		$CurBarb = Round($CurBarb)
-	 	$CurArch += ($TotalCamp-$anotherTroops)*GUICtrlRead($txtNumArch)/100
+	 	$CurArch += ($TotalCampSize-$anotherTroops)*GUICtrlRead($txtNumArch)/100
 		$CurArch = Round($CurArch)
 	EndIf
 
@@ -267,12 +285,13 @@ Func Train()
 			;endif
 		wend
 	else
-		if skip_train() then
-			SetLog("Skip Barrack " & $brrNum + 1 & " as no troop training required", $COLOR_RED)
-			return
-		endif
 		while isBarrack() and $isNormalBuild
 			$brrNum += 1
+			SetLog("Barrack " & $brrNum & " training", $COLOR_RED)
+			if skip_train() then
+				SetLog("Skip Barrack " & $brrNum & " as no troop training required", $COLOR_RED)
+				return
+			endif
 			if $fullArmy or $FirstStart then
 				$icount = 0
 				while not _ColorCheck(_GetPixelColor(496, 197,"Y"), Hex(0xE0E4D0, 6), 20)

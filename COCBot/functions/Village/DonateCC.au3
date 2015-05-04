@@ -72,6 +72,7 @@ Func DonateCC($Check = False)
 				wend
 				If $ClanString = "" Or $ClanString = " " Then
 					SetLog("Unable to read Chat Request!", $COLOR_RED)
+					img_donate_chk()
 					$Donate = True
 					$y = $DonatePixel[1] + 10
 					ContinueLoop
@@ -238,7 +239,6 @@ Func DonateCC($Check = False)
 						ContinueLoop
 					EndIf
 				EndIf
-
 			EndIf
 
 			If $DonateAllTroop Then
@@ -327,6 +327,8 @@ Func CheckDonateTroop($Type, $aDonTroop, $aBlkTroop, $aBlackList, $ClanString)
 			Return True
 		EndIf
 	Next
+	
+	; image donate checking here
 
 	Return False
 EndFunc   ;==>CheckDonateTroop
@@ -411,3 +413,51 @@ Func DonateTroopType($Type)
 	Click(1, 1)
 	If _Sleep(250) Then Return
 EndFunc   ;==>DonateTroopType
+
+Func img_donate_chk ()
+	local $donate_any = 0
+	local $image_x=0
+	local $image_y=0
+
+	; Todo: check the donate troop type, currently only support archer, wizard for any troop donation
+	For $i = 0 To 10
+		; working: 0 1
+		local $img_donate_any = @ScriptDir & "\images\donate\any" & $i & ".png"
+		if FileExists($img_donate_any) == 0 then
+			;SetLog("file not found - " & $img_donate_any, $COLOR_RED)
+			continueloop
+		endif
+		;If _ImageSearch($img_donate_any, 1, $image_x, $image_y, 80) Then
+		if _ImageSearchArea($img_donate_any, 1, 0, $DonatePixel[1] - 28, 435, $DonatePixel[1] + 50, $image_x, $image_y, 80) Then
+			SetLog("donate any... - " & $i, $COLOR_RED)
+			DonateTroopType($eWiza)
+			If _Sleep(1000) Then Return
+			DonateTroopType($eArch)
+			$donate_any = 1
+			ExitLoop
+		EndIf
+	Next
+
+	Local $troop_list[16] = ["Barbarian", "Archer", "Giant", "Goblin", "WB", "Wizard", "Balloon", "Healer", "Dragon", "Pekka", "Minion", "Hog", "Valkyrie", "Golem", "Witch", "Lava"] 
+	if $donate_any = 0 then
+		; chk before donate
+		;local $tmp_chk
+		;assign(tmp_chk, eval("iChkDonate" & $TroopDarkName[$i] & "s"))
+		For $t = 0 To UBound($troop_list) - 1
+			local $lut = $troop_list[$t]
+			For $i = 0 To 10
+				local $img_donate_lu = @ScriptDir & "\images\donate\" & $lut & $i & ".png"
+				if FileExists($img_donate_lu) == 0 then
+					;SetLog("file not found - " & $img_donate_lu, $COLOR_RED)
+					;continueloop
+					ExitLoop
+				endif
+				if _ImageSearchArea($img_donate_lu, 1, 0, $DonatePixel[1] - 28, 435, $DonatePixel[1] + 50, $image_x, $image_y, 80) Then
+					SetLog("donate " & $lut & " - " & $i, $COLOR_RED)
+					DonateTroopType($t)
+					ExitLoop
+				EndIf
+			Next
+		Next
+	endif
+EndFunc

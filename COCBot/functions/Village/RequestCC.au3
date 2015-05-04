@@ -20,8 +20,8 @@ Func RequestCC()
 					Click(430, 140) ;Select text for request
 					If _Sleep(1000) Then Return
 					ControlSend($Title, "", "", $sTxtRequest, 0)
-				Else
-					Click(430, 140) ;Select text for request, default request text of the game will be sent by making box empty
+				;Else
+				;	Click(430, 140) ;Select text for request, default request text of the game will be sent by making box empty
 				EndIf
 				If _Sleep(1000) Then Return
 				Click(524, 228)

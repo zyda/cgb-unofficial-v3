@@ -131,7 +131,7 @@ Func DEAttack()
 		Else
 			$pixel[0] += 230 ; compensate CaptureRegion reduction
 			$pixel[1] += 170 ; compensate CaptureRegion reduction
-			SetLog("== DE lixir Storage : [" & $pixel[0] & "," & $pixel[1] & "] ==", $COLOR_BLUE)
+			SetLog("== DElixir Storage : [" & $pixel[0] & "," & $pixel[1] & "] ==", $COLOR_BLUE)
 			If _Sleep(1000) Then Return
 			$DESLocx = $pixel[0] ; compensation for $x center of Storage
 			$DESLocy = $pixel[1] ; compensation for $y center of Storage
